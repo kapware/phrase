@@ -189,6 +189,42 @@ In this example, I require a password to have the right length and contain at le
 ;;=> true
 ```
 
+### ClojureScript
+
+The library is designed also to be used in ClojureScript projects. Here's an example usage:
+
+```clojure
+(require '[cljs.spec.alpha :as s])
+
+(s/def ::password
+  #(<= 8 (count %)))
+```
+
+so the namespace needs to be changed to `cljs`. Additionally note the use of `goog.string.format`:
+
+```clojure
+(require '[phrase.alpha :as phrase])
+(require '[goog.string :as gstring])
+(require '[goog.string.format])
+
+(phrase/defphraser #(<= min-length (count %))
+  [_ _ min-length]
+  (gstring/format "Please use at least %s chars." min-length))
+```  
+ 
+Finally: 
+ 
+```
+(phrase/phrase-first {} ::password "1234")
+```
+
+returns, as expected:
+
+```clojure
+"Please use at least 8 chars."
+```
+
+
 ### Phrasing Problems
 
 The main function to phrase problems is `phrase`. It takes the problem directly. There is a helper function called `phrase-first` which does the whole thing. It calls `s/explain-data` on the value using the supplied spec and phrases the first problem, if there is any. However, you have to use `phrase` directly if you like to phrase more than one problem. The library doesn't contain a `phrase-all` function because it doesn't know how to concatenate messages. 
